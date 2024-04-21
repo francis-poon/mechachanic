@@ -1,45 +1,52 @@
 using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
-public class Fuel : Supplies
+public class Fuel : MonoBehaviour
 {
+    public event EventHandler<EventArgs> FuelCellInserted;
 
     [SerializeField]
     private Color undistilledColor;
 
     [SerializeField]
     private Color distilledColor;
+
+    [SerializeField]
+    private GameObject tankBody;
     
     int distillationLevel { set; get; }
-    private float distillationTime;
-    private int distillationProgressAmount;
     private Boolean distilling;
     private float waitTime;
 
-    private new void Awake()
+    public Vector3 returnPosition { set; private get; }
+    private Distiller distiller;
+    private bool draggable;
+    public Guid guid { private set; get; }
+
+    private void Awake()
     {
-        base.Awake();
-        distillationTime = 0f;
-        distillationProgressAmount = 0;
         distilling = false;
         waitTime = 0f;
+        draggable = true;
+        tankBody.GetComponent<SpriteRenderer>().color = undistilledColor;
+        guid = Guid.NewGuid();
     }
 
     private void Update()
     {
-        transform.GetComponent<SpriteRenderer>().color = Color.Lerp(undistilledColor, distilledColor, distillationLevel / 100f);
-        if (!distilling)
+        if (!distilling || distiller == null)
         {
             return;
         }
 
-        if (distillationTime > 0f)
+        if (distiller.GetDistillationTime() > 0f)
         {
             waitTime += Time.deltaTime;
-            while (waitTime >= distillationTime)
+            while (waitTime >= distiller.GetDistillationTime())
             {
-                waitTime -= distillationTime;
-                distillationLevel += distillationProgressAmount;
+                waitTime -= distiller.GetDistillationTime();
+                distillationLevel += distiller.GetDistillationProgressAmount();
 
                 Debug.Log($"Distilling level at {distillationLevel}");
             }
@@ -48,15 +55,55 @@ public class Fuel : Supplies
         if (distillationLevel >= 100)
         {
             distillationLevel = 100;
+            draggable = true;
             StopDistillation();
+        }
+
+        tankBody.GetComponent<SpriteRenderer>().color = Color.Lerp(undistilledColor, distilledColor, distillationLevel / 100f);
+    }
+
+    public void OnMouseUp()
+    {
+        if (distillationLevel >= 100 || distilling)
+        {
+            return;
+        }
+
+        if (distiller != null)
+        {
+            this.transform.position = distiller.transform.position;
+            draggable = false;
+            FuelCellInserted?.Invoke(this, null);
+            StartDistillation();
+        }
+        else
+        {
+            this.transform.position = returnPosition;
         }
     }
 
-    public void StartDistillation(float distillationTime, int distillationProgressAmount)
+    public void OnMouseDrag()
+    {
+        if (draggable)
+        {
+            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            transform.position = mousePosition;
+        }
+    }
+
+    public void SetDistiller(Distiller distiller)
+    {
+        this.distiller = distiller;
+    }
+
+    public void ClearDistiller()
+    {
+        this.distiller = null;
+    }
+
+    public void StartDistillation()
     {
         Debug.Log("Distilling started");
-        this.distillationTime = distillationTime;
-        this.distillationProgressAmount = distillationProgressAmount;
         distilling = true;
         waitTime = 0f;
     }
@@ -64,8 +111,6 @@ public class Fuel : Supplies
     public void StopDistillation()
     {
         Debug.Log("Distilling stopped");
-        this.distillationTime = 0f;
-        this.distillationProgressAmount = 0;
         distilling = false;
     }
 

@@ -6,8 +6,6 @@ public class Tray : MonoBehaviour
 {
     private int counter;
 
-    [SerializeField]
-    private float chargeRate = 0.5f;
 
     private void Awake()
     {

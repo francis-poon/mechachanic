@@ -8,6 +8,13 @@ public class Battery : MonoBehaviour
 {
     public event EventHandler<EventArgs> BatteryPluggedIn;
 
+    [SerializeField]
+    private Color unchargedColor;
+
+    [SerializeField]
+    private Color chargedColor;
+
+
     public int chargeLevel { private set; get; }
 
     private bool charging;
@@ -24,6 +31,8 @@ public class Battery : MonoBehaviour
         charging = false;
         waitTime = 0f;
         draggable = true;
+
+        this.transform.GetComponent<SpriteRenderer>().color = unchargedColor;
     }
 
     private void Update()
@@ -39,7 +48,7 @@ public class Battery : MonoBehaviour
             while (waitTime >= charger.GetChargeTime())
             {
                 waitTime -= charger.GetChargeTime();
-                chargeLevel += charger.GetChargeStep();
+                chargeLevel += charger.GetChargeProgressAmount();
 
                 Debug.Log($"Charging level at {chargeLevel}");
             }
@@ -51,11 +60,13 @@ public class Battery : MonoBehaviour
             draggable = true;
             StopCharge();
         }
+
+        this.transform.GetComponent<SpriteRenderer>().color = Color.Lerp(unchargedColor, chargedColor, chargeLevel / 100f);
     }
 
     public void OnMouseUp()
     {
-        if (chargeLevel >= 100)
+        if (chargeLevel >= 100 || charging)
         {
             return;
         }

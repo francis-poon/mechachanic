@@ -9,9 +9,10 @@ public class Charger : MonoBehaviour
     private float chargeTime;
 
     [SerializeField]
-    private int chargeStep;
+    private int chargeProgressAmount;
 
     private bool occupied;
+    private Battery occupiedBattery;
 
     private void Awake()
     {
@@ -20,12 +21,12 @@ public class Charger : MonoBehaviour
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log($"Collision with {collision}");
         if (collision.gameObject.GetComponent<Battery>() != null && !occupied)
         {
             Battery battery = collision.gameObject.GetComponent<Battery>();
             battery.BatteryPluggedIn += HandleBatteryPluggedIn;
             battery.SetCharger(this);
+            Debug.Log($"Collision with {collision}");
         }
     }
 
@@ -36,13 +37,18 @@ public class Charger : MonoBehaviour
             Battery battery = collision.gameObject.GetComponent<Battery>();
             battery.BatteryPluggedIn -= HandleBatteryPluggedIn;
             battery.ClearCharger();
-            occupied = false;
+            if (battery.Equals(occupiedBattery))
+            {
+                occupied = false;
+            }
         }
     }
 
     public void HandleBatteryPluggedIn(object sender, EventArgs args)
     {
+        Debug.Log($"Charger now occupied");
         occupied = true;
+        occupiedBattery = (Battery)sender;
     }
 
     public float GetChargeTime()
@@ -50,8 +56,8 @@ public class Charger : MonoBehaviour
         return this.chargeTime;
     }
 
-    public int GetChargeStep()
+    public int GetChargeProgressAmount()
     {
-        return this.chargeStep;
+        return this.chargeProgressAmount;
     }
 }
