@@ -10,6 +10,12 @@ public class Distiller : MonoBehaviour
     [SerializeField]
     private GameObject[] fuelSlots;
 
+    [SerializeField]
+    private float distillationTime = 0.5f;
+
+    [SerializeField]
+    private int distillationProgressAmount = 10;
+
     private Dictionary<Guid, int> fuelTracker;
     private bool[] isSlotOccupied;
 
@@ -29,7 +35,7 @@ public class Distiller : MonoBehaviour
         {
             Fuel fuel = collision.gameObject.GetComponent<Fuel>();
             fuel.FuelCellInserted += HandleFuelCellInserted;
-            fuel.SetDistiller(this);
+            fuel.SetDistiller(this); // TODO: Need to set this to a fuel slot transform
             Debug.Log($"Collision with {collision}");
         }
     }
@@ -44,6 +50,7 @@ public class Distiller : MonoBehaviour
 
             if (fuelTracker.ContainsKey(fuel.guid))
             {
+                isSlotOccupied[fuelTracker[fuel.guid]] = false;
                 fuelTracker.Remove(fuel.guid);
             }
         }
@@ -57,12 +64,23 @@ public class Distiller : MonoBehaviour
 
     public float GetDistillationTime()
     {
-        return 0f;
+        return this.distillationTime;
     }
 
     public int GetDistillationProgressAmount()
     {
-        return 0;
+        return this.distillationProgressAmount;
+    }
+
+    public Vector3 GetFuelSlot(Guid guid)
+    {
+        if (this.fuelTracker.ContainsKey(guid))
+        {
+            return this.fuelSlots[fuelTracker[guid]].transform.position;
+        }
+
+        Debug.LogError($"No fuel slot for {guid}");
+        return new Vector3(0,0,0);
     }
 
     private void AddFuelCell(Fuel fuel)

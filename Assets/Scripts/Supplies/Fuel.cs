@@ -74,6 +74,7 @@ public class Fuel : MonoBehaviour
             this.transform.position = distiller.transform.position;
             draggable = false;
             FuelCellInserted?.Invoke(this, null);
+            this.transform.position = distiller.GetFuelSlot(this.guid);
             StartDistillation();
         }
         else

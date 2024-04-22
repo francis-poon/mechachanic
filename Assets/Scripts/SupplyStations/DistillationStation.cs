@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -5,37 +6,26 @@ using UnityEngine;
 
 public class DistillationStation : MonoBehaviour
 {
-    private int counter;
+    [SerializeField]
+    private GameObject fuelCellSpawner;
 
     [SerializeField]
-    private float distillationRate = 0.5f;
+    private GameObject fuelCellPrefab;
 
-    [SerializeField]
-    private int distillationProgressAmount = 10;
+    private GameObject activeFuelCell;
 
-    private void Awake()
+    private void Start()
     {
-        counter = 0;
+        activeFuelCell = Instantiate(fuelCellPrefab, fuelCellSpawner.transform);
+        activeFuelCell.GetComponent<Fuel>().returnPosition = fuelCellSpawner.transform.position;
+        activeFuelCell.GetComponent<Fuel>().FuelCellInserted += HandleBatteryPluggedIn;
     }
 
-    public void OnTriggerEnter2D(Collider2D collision)
+    private void HandleBatteryPluggedIn(object sender, EventArgs args)
     {
-        if (collision.gameObject.GetComponent<Fuel>() != null)
-        {
-            counter++;
-            collision.gameObject.GetComponent<Fuel>().StartDistillation(distillationRate, distillationProgressAmount);
-            Debug.Log($"Counter increased to {counter}");
-        }
-    }
-
-    public void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.gameObject.GetComponent<Fuel>() != null)
-        {
-            counter--;
-            collision.gameObject.GetComponent<Fuel>().StopDistillation();
-            Debug.Log($"Counter decreased to {counter}");
-        }
-        
+        activeFuelCell.GetComponent<Fuel>().FuelCellInserted -= HandleBatteryPluggedIn;
+        activeFuelCell = Instantiate(fuelCellPrefab, fuelCellSpawner.transform);
+        activeFuelCell.GetComponent<Fuel>().returnPosition = fuelCellSpawner.transform.position;
+        activeFuelCell.GetComponent<Fuel>().FuelCellInserted += HandleBatteryPluggedIn;
     }
 }
