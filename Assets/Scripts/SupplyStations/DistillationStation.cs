@@ -17,7 +17,8 @@ public class DistillationStation : MonoBehaviour
     private void Start()
     {
         activeFuelCell = Instantiate(fuelCellPrefab, fuelCellSpawner.transform);
-        activeFuelCell.GetComponent<Fuel>().returnPosition = fuelCellSpawner.transform.position;
+        activeFuelCell.GetComponent<Fuel>().returnPosition =
+            new Vector3(fuelCellSpawner.transform.position.x, fuelCellSpawner.transform.position.y, GameManager.SUPPLY_LAYER);
         activeFuelCell.GetComponent<Fuel>().FuelCellInserted += HandleBatteryPluggedIn;
     }
 
@@ -25,7 +26,8 @@ public class DistillationStation : MonoBehaviour
     {
         activeFuelCell.GetComponent<Fuel>().FuelCellInserted -= HandleBatteryPluggedIn;
         activeFuelCell = Instantiate(fuelCellPrefab, fuelCellSpawner.transform);
-        activeFuelCell.GetComponent<Fuel>().returnPosition = fuelCellSpawner.transform.position;
+        activeFuelCell.GetComponent<Fuel>().returnPosition =
+            new Vector3(fuelCellSpawner.transform.position.x, fuelCellSpawner.transform.position.y, GameManager.SUPPLY_LAYER);
         activeFuelCell.GetComponent<Fuel>().FuelCellInserted += HandleBatteryPluggedIn;
     }
 }

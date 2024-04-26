@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-
+    public static int SUPPLY_LAYER = -1;
 }

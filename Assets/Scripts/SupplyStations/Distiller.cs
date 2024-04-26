@@ -35,7 +35,7 @@ public class Distiller : MonoBehaviour
         {
             Fuel fuel = collision.gameObject.GetComponent<Fuel>();
             fuel.FuelCellInserted += HandleFuelCellInserted;
-            fuel.SetDistiller(this); // TODO: Need to set this to a fuel slot transform
+            fuel.SetDistiller(this);
             Debug.Log($"Collision with {collision}");
         }
     }

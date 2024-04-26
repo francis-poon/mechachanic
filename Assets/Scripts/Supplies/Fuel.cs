@@ -74,7 +74,8 @@ public class Fuel : MonoBehaviour
             this.transform.position = distiller.transform.position;
             draggable = false;
             FuelCellInserted?.Invoke(this, null);
-            this.transform.position = distiller.GetFuelSlot(this.guid);
+            Vector2 fuelSlot = distiller.GetFuelSlot(this.guid);
+            this.transform.position = new Vector3(fuelSlot.x, fuelSlot.y, GameManager.SUPPLY_LAYER);
             StartDistillation();
         }
         else
@@ -88,7 +89,7 @@ public class Fuel : MonoBehaviour
         if (draggable)
         {
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            transform.position = mousePosition;
+            transform.position = new Vector3(mousePosition.x, mousePosition.y, GameManager.SUPPLY_LAYER);
         }
     }
 
