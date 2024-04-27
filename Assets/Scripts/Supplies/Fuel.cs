@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-public class Fuel : MonoBehaviour
+public class Fuel : Supplies
 {
     public event EventHandler<EventArgs> FuelCellInserted;
 
@@ -47,8 +47,6 @@ public class Fuel : MonoBehaviour
             {
                 waitTime -= distiller.GetDistillationTime();
                 distillationLevel += distiller.GetDistillationProgressAmount();
-
-                Debug.Log($"Distilling level at {distillationLevel}");
             }
         }
 

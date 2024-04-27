@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Battery : MonoBehaviour
+public class Battery : Supplies
 {
     public event EventHandler<EventArgs> BatteryPluggedIn;
 
@@ -49,8 +49,6 @@ public class Battery : MonoBehaviour
             {
                 waitTime -= charger.GetChargeTime();
                 chargeLevel += charger.GetChargeProgressAmount();
-
-                Debug.Log($"Charging level at {chargeLevel}");
             }
         }
 
