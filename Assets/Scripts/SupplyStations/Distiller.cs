@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Distiller : MonoBehaviour
@@ -80,7 +77,7 @@ public class Distiller : MonoBehaviour
         }
 
         Debug.LogError($"No fuel slot for {guid}");
-        return new Vector3(0,0,0);
+        return Vector3.zero;
     }
 
     private void AddFuelCell(Fuel fuel)

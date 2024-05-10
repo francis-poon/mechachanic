@@ -24,6 +24,8 @@ public class Battery : Supplies
     private Charger charger;
     private bool draggable;
 
+    public Guid guid { private set; get; }
+
 
     protected void Awake()
     {
@@ -33,6 +35,7 @@ public class Battery : Supplies
         draggable = true;
 
         this.transform.GetComponent<SpriteRenderer>().color = unchargedColor;
+        guid = Guid.NewGuid();
     }
 
     private void Update()
@@ -74,6 +77,8 @@ public class Battery : Supplies
             this.transform.position = charger.transform.position;
             draggable = false;
             BatteryPluggedIn?.Invoke(this, null);
+            Vector2 chargingSlot = charger.GetChargingSlot(this.guid);
+            this.transform.position = new Vector3(chargingSlot.x, chargingSlot.y, GameManager.SUPPLY_LAYER);
             StartCharge();
         }
         else
@@ -87,7 +92,7 @@ public class Battery : Supplies
         if (draggable)
         {
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            transform.position = mousePosition;
+            transform.position = new Vector3(mousePosition.x, mousePosition.y, GameManager.SUPPLY_LAYER);
         }
     }
 

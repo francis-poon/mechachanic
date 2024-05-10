@@ -1,27 +1,34 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Charger : MonoBehaviour
 {
     [SerializeField]
+    private GameObject[] chargingSlots;
+
+    [SerializeField]
     private float chargeTime;
 
     [SerializeField]
     private int chargeProgressAmount;
 
-    private bool occupied;
-    private Battery occupiedBattery;
+    private Dictionary<Guid, int> batteryTracker;
+    private bool[] isSlotOccupied;
 
     private void Awake()
     {
-        occupied = false;
+        batteryTracker = new Dictionary<Guid, int>();
+        isSlotOccupied = new bool[chargingSlots.Length];
+        for (int c = 0; c < chargingSlots.Length; c ++)
+        {
+            isSlotOccupied[c] = false;
+        }
     }
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.GetComponent<Battery>() != null && !occupied)
+        if (collision.gameObject.GetComponent<Battery>() != null && HasUnoccupiedSlot())
         {
             Battery battery = collision.gameObject.GetComponent<Battery>();
             battery.BatteryPluggedIn += HandleBatteryPluggedIn;
@@ -37,9 +44,10 @@ public class Charger : MonoBehaviour
             Battery battery = collision.gameObject.GetComponent<Battery>();
             battery.BatteryPluggedIn -= HandleBatteryPluggedIn;
             battery.ClearCharger();
-            if (battery.Equals(occupiedBattery))
+            if (batteryTracker.ContainsKey(battery.guid))
             {
-                occupied = false;
+                isSlotOccupied[batteryTracker[battery.guid]] = false;
+                batteryTracker.Remove(battery.guid);
             }
         }
     }
@@ -47,8 +55,7 @@ public class Charger : MonoBehaviour
     public void HandleBatteryPluggedIn(object sender, EventArgs args)
     {
         Debug.Log($"Charger now occupied");
-        occupied = true;
-        occupiedBattery = (Battery)sender;
+        AddBattery((Battery)sender);
     }
 
     public float GetChargeTime()
@@ -59,5 +66,44 @@ public class Charger : MonoBehaviour
     public int GetChargeProgressAmount()
     {
         return this.chargeProgressAmount;
+    }
+
+    public Vector3 GetChargingSlot(Guid guid)
+    {
+        if (this.batteryTracker.ContainsKey(guid))
+        {
+            return this.chargingSlots[batteryTracker[guid]].transform.position;
+        }
+
+        Debug.LogError($"No charging slot for {guid}");
+        return Vector3.zero;
+    }
+
+    private void AddBattery(Battery battery)
+    {
+        int unoccupiedSlot = -1;
+        for (int c = 0; c < isSlotOccupied.Length; c++)
+        {
+            if (!isSlotOccupied[c])
+            {
+                unoccupiedSlot = c;
+                break;
+            }
+        }
+        if (unoccupiedSlot == -1)
+        {
+            Debug.LogError("DistillationStation full but attempt was made to add fuel cell.");
+            battery.BatteryPluggedIn -= HandleBatteryPluggedIn;
+            battery.ClearCharger();
+            return;
+        }
+
+        batteryTracker.Add(battery.guid, unoccupiedSlot);
+        isSlotOccupied[unoccupiedSlot] = true;
+    }
+
+    private bool HasUnoccupiedSlot()
+    {
+        return batteryTracker.Count < chargingSlots.Length;
     }
 }
