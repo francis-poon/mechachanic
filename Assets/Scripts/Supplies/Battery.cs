@@ -14,6 +14,9 @@ public class Battery : Supplies
     [SerializeField]
     private Color chargedColor;
 
+    [SerializeField]
+    private Animator animator;
+
 
     public int chargeLevel { private set; get; }
 
@@ -34,7 +37,7 @@ public class Battery : Supplies
         waitTime = 0f;
         draggable = true;
 
-        this.transform.GetComponent<SpriteRenderer>().color = unchargedColor;
+        //this.transform.GetComponent<SpriteRenderer>().color = unchargedColor;
         guid = Guid.NewGuid();
     }
 
@@ -62,7 +65,12 @@ public class Battery : Supplies
             StopCharge();
         }
 
-        this.transform.GetComponent<SpriteRenderer>().color = Color.Lerp(unchargedColor, chargedColor, chargeLevel / 100f);
+        if (animator.GetInteger("ChargingState") < (int)((chargeLevel * 3 + 100) / 100))
+        {
+            animator.SetInteger("ChargingState", (int)((chargeLevel * 3 + 100) / 100));
+        }
+        
+        //this.transform.GetComponent<SpriteRenderer>().color = Color.Lerp(unchargedColor, chargedColor, chargeLevel / 100f);
     }
 
     public void OnMouseUp()
