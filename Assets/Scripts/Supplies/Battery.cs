@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Battery : Supplies
@@ -9,14 +6,7 @@ public class Battery : Supplies
     public event EventHandler<EventArgs> BatteryPluggedIn;
 
     [SerializeField]
-    private Color unchargedColor;
-
-    [SerializeField]
-    private Color chargedColor;
-
-    [SerializeField]
     private Animator animator;
-
 
     public int chargeLevel { private set; get; }
 
@@ -37,7 +27,6 @@ public class Battery : Supplies
         waitTime = 0f;
         draggable = true;
 
-        //this.transform.GetComponent<SpriteRenderer>().color = unchargedColor;
         guid = Guid.NewGuid();
     }
 
@@ -69,8 +58,6 @@ public class Battery : Supplies
         {
             animator.SetInteger("ChargingState", (int)((chargeLevel * 3 + 100) / 100));
         }
-        
-        //this.transform.GetComponent<SpriteRenderer>().color = Color.Lerp(unchargedColor, chargedColor, chargeLevel / 100f);
     }
 
     public void OnMouseUp()
