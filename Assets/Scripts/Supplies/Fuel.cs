@@ -13,7 +13,10 @@ public class Fuel : Supplies
     private Color distilledColor;
 
     [SerializeField]
-    private GameObject tankBody;
+    private Animator fuelCellAnimator;
+
+    [SerializeField]
+    private SpriteRenderer fuelCellRenderer;
     
     int distillationLevel { set; get; }
     private Boolean distilling;
@@ -29,7 +32,8 @@ public class Fuel : Supplies
         distilling = false;
         waitTime = 0f;
         draggable = true;
-        tankBody.GetComponent<SpriteRenderer>().color = undistilledColor;
+        fuelCellRenderer.color = undistilledColor;
+        fuelCellAnimator.SetFloat("Distilling", 0f);
         guid = Guid.NewGuid();
     }
 
@@ -57,7 +61,7 @@ public class Fuel : Supplies
             StopDistillation();
         }
 
-        tankBody.GetComponent<SpriteRenderer>().color = Color.Lerp(undistilledColor, distilledColor, distillationLevel / 100f);
+        fuelCellRenderer.color = Color.Lerp(undistilledColor, distilledColor, distillationLevel / 100f);
     }
 
     public void OnMouseUp()
@@ -106,12 +110,14 @@ public class Fuel : Supplies
         Debug.Log("Distilling started");
         distilling = true;
         waitTime = 0f;
+        fuelCellAnimator.SetFloat("Distilling", 1f);
     }
 
     public void StopDistillation()
     {
         Debug.Log("Distilling stopped");
         distilling = false;
+        fuelCellAnimator.SetFloat("Distilling", 0f);
     }
 
 }
