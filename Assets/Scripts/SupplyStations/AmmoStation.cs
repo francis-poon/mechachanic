@@ -5,6 +5,9 @@ using UnityEngine;
 public class AmmoStation : MonoBehaviour
 {
     [SerializeField]
+    private GameObject ammoBoxSpawner;
+
+    [SerializeField]
     private GameObject ammoBoxPrefab;
 
     private Ammo.AmmoType selectedAmmoType;

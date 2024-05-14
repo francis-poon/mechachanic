@@ -17,6 +17,9 @@ public class AmmoBox : Supplies
     [SerializeField]
     private Color filledColor;
 
+    [SerializeField]
+    private Animator ammoBeltAnimator;
+
     private Transform startingPosition;
     private bool filled;
 
