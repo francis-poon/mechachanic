@@ -73,7 +73,6 @@ public class Fuel : Supplies
 
         if (distiller != null)
         {
-            this.transform.position = distiller.transform.position;
             draggable = false;
             FuelCellInserted?.Invoke(this, null);
             Vector2 fuelSlot = distiller.GetFuelSlot(this.guid);

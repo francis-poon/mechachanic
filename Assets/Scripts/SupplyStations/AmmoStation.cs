@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class AmmoStation : MonoBehaviour
@@ -12,11 +11,11 @@ public class AmmoStation : MonoBehaviour
 
     private Ammo.AmmoType selectedAmmoType;
     private AmmoSelector ammoSelector;
-    private GameObject ammoBox;
+    private GameObject activeAmmoBox;
 
     private void Start()
     {
-        ammoBox = Instantiate(ammoBoxPrefab, this.transform);
+        SpawnNewAmmoBox();
     }
 
     public void SelectAmmo(Ammo.AmmoType ammoType, AmmoSelector ammoSelector, Color ammoColor)
@@ -29,11 +28,20 @@ public class AmmoStation : MonoBehaviour
             this.ammoSelector.Deselect();
         }
         this.ammoSelector = ammoSelector;
-        this.ammoBox.GetComponent<AmmoBox>().SelectAmmoType(ammoColor);
+        this.activeAmmoBox.GetComponent<AmmoBox>().SelectAmmoType(ammoColor);
     }
 
-    public void OnBoxFilled()
+    private void SpawnNewAmmoBox()
     {
-        ammoBox = Instantiate(ammoBoxPrefab, this.transform);
+        activeAmmoBox = Instantiate(ammoBoxPrefab, ammoBoxSpawner.transform);
+        activeAmmoBox.GetComponent<AmmoBox>().returnPosition =
+            new Vector3(ammoBoxSpawner.transform.position.x, ammoBoxSpawner.transform.position.y, GameManager.SUPPLY_LAYER);
+        activeAmmoBox.GetComponent<AmmoBox>().AmmoBoxInserted += HandleAmmoBoxInserted;
+    }
+
+    private void HandleAmmoBoxInserted(object sender, EventArgs args)
+    {
+        activeAmmoBox.GetComponent<AmmoBox>().AmmoBoxInserted -= HandleAmmoBoxInserted;
+        SpawnNewAmmoBox();
     }
 }

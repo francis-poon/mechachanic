@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Animations;
@@ -5,6 +6,8 @@ using UnityEngine;
 
 public class AmmoBox : Supplies
 {
+    public event EventHandler<EventArgs> AmmoBoxInserted;
+
     [SerializeField]
     private GameObject ammoBelt;
 
@@ -20,19 +23,25 @@ public class AmmoBox : Supplies
     [SerializeField]
     private Animator ammoBeltAnimator;
 
-    private Transform startingPosition;
+    private AmmoBoxHolder ammoBoxHolder;
+    public Vector3 returnPosition;
     private bool filled;
+    private bool draggable;
+    private bool filling;
+    public Guid guid { private set; get; }
 
     private void Awake()
     {
-        startingPosition = this.transform;
-        this.transform.GetComponent<SpriteRenderer>().color = unfilledColor;
+        //this.transform.GetComponent<SpriteRenderer>().color = unfilledColor;
         filled = false;
+        draggable = true;
+        filling = false;
+        guid = Guid.NewGuid();
     }
 
     private void Start()
     {
-        ammoBelt.SetActive(false);
+        ammoBeltAnimator.SetBool("Open", false);
         ammoGroup.SetActive(false);
     }
 
@@ -55,31 +64,54 @@ public class AmmoBox : Supplies
         }
     }
 
-    public void OnMouseDown()
+    private void OnMouseUp()
     {
-        if (!filled)
+        if (filling)
         {
-            ammoBelt.SetActive(!ammoBelt.activeSelf);
+            return;
+        }
+
+        if (ammoBoxHolder != null)
+        {
+            draggable = false;
+            ammoBeltAnimator.SetBool("Open", true);
+            ammoGroup.SetActive(true);
+            AmmoBoxInserted?.Invoke(this, null);
+            Vector2 ammoSlot = ammoBoxHolder.GetComponent<AmmoBoxHolder>().GetAmmoSlot(this.guid);
+            this.transform.position = new Vector3(ammoSlot.x, ammoSlot.y, GameManager.SUPPLY_LAYER);
+        }
+        else
+        {
+            this.transform.position = returnPosition;
         }
     }
 
     public void OnMouseDrag()
     {
-        if (filled)
+        if (draggable)
         {
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            transform.position = mousePosition;
+            transform.position = new Vector3(mousePosition.x, mousePosition.y, GameManager.SUPPLY_LAYER);
         }
+    }
+
+    public void SetAmmoBoxHolder(AmmoBoxHolder ammoBoxHolder)
+    {
+        this.ammoBoxHolder = ammoBoxHolder;
+    }
+
+    public void ClearAmmoBoxHolder()
+    {
+        this.ammoBoxHolder = null;
     }
 
     public void Fill()
     {
         Debug.Log("Ammo Filled");
-        ammoBelt.SetActive(false);
-        this.transform.GetComponent<SpriteRenderer>().color = filledColor;
+        ammoGroup.SetActive(false);
+        ammoBeltAnimator.SetBool("Open", false);
         this.transform.GetComponent<SpriteRenderer>().sortingOrder = 1;
         this.transform.position = this.transform.position + new Vector3(0, 0, -1);
-        this.transform.GetComponentInParent<AmmoStation>().OnBoxFilled();
     }
 
     public void SelectAmmoType(Color ammoColor)
